@@ -1,0 +1,35 @@
+version: "3"
+services:
+  dnsserver:
+    build: ./dnsserver
+    image: "dnsserver"
+    container_name: dns-server
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    stdin_open: true
+    tty: true
+    networks:
+      project-net:
+        ipv4_address: 172.20.6.6
+
+  namelookup:
+    build: ./namelookup
+    image: "namelookup"
+    container_name: name-lookup
+    stdin_open: true
+    depends_on:
+      - dnsserver
+    tty: true
+    dns:
+      - 172.20.6.6
+    networks:
+      project-net:
+        ipv4_address: 172.20.7.7
+
+networks:
+  project-net:
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.20.0.0/16"
